@@ -23,6 +23,22 @@ function spreadsheet(keyFile, spreadsheetId) {
   });
   //'1vuKyr1A8Vjnz3O48AE9gHNrTSCZ2oaaMNOc2EWjsp5Q';
 
+  this.getSheetTitles = async function () {
+    const meta = await googlesheets.spreadsheets.get({
+      auth,
+      spreadsheetId: this.spreadsheetId,
+    });
+    return meta.data.sheets.map((s) => s.properties.title);
+  };
+  this.addSheet = async function (title) {
+    await googlesheets.spreadsheets.batchUpdate({
+      auth,
+      spreadsheetId: this.spreadsheetId,
+      resource: {
+        requests: [{ addSheet: { properties: { title } } }],
+      },
+    });
+  };
   this.getRows = async function (range) {
     const data = await googlesheets.spreadsheets.values.get({
       auth,

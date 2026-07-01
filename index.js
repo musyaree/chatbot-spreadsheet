@@ -1,6 +1,7 @@
 const {
   default: makeWASocket,
   useMultiFileAuthState,
+  fetchLatestBaileysVersion,
   DisconnectReason,
 } = require("@whiskeysockets/baileys");
 const P = require("pino");
@@ -12,7 +13,12 @@ async function connectToWhatsApp() {
   // Sesi login disimpan di folder ./sessions (persisten antar-restart).
   const { state, saveCreds } = await useMultiFileAuthState("sessions");
 
+  // Ambil versi protokol WhatsApp Web terbaru agar tidak ditolak (405).
+  const { version } = await fetchLatestBaileysVersion();
+  console.log("Memakai versi WA Web:", version.join("."));
+
   const sock = makeWASocket({
+    version,
     auth: state,
     logger: P({ level: "silent" }),
     browser: ["Jurnal Bot", "Safari", "3.0"],

@@ -22,12 +22,13 @@ function parseKonfirmasi(text) {
     return m ? m[1].trim() : "";
   };
 
-  const nomorOjs = ambil(/Nomor\s*OJS\s*:\s*(\d+)/i);
+  // Nomor OJS: angka plus tanda hubung/garis miring/titik (mis. 2024-01).
+  const nomorOjs = ambil(/Nomor\s*OJS\s*:\s*([\d.\/-]+)/i);
   const ftRegRaw = ambil(/FT\s*\/\s*Reg\s*:\s*(.+)/i);
   const namaPembayar = ambil(/Nama\s*Pembayar\s*:\s*(.+)/i);
 
-  // Wajib: minimal Nomor OJS (harus angka) dan Nama Pembayar terisi.
-  if (!nomorOjs || !namaPembayar) return null;
+  // Wajib: Nomor OJS ada & mengandung minimal satu angka, dan Nama Pembayar terisi.
+  if (!nomorOjs || !/\d/.test(nomorOjs) || !namaPembayar) return null;
 
   return {
     nomorOjs,
