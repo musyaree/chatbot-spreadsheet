@@ -7,7 +7,8 @@
     "dev terminal": "nodemon index1.js terminalbot",
     "bot": "node index.js",
     "bot terminal": "node index.js terminalbot",
-    "dev": "node index1"
+    "dev": "node index1",
+    "test": "node --test"
   },
   "repository": {
     "type": "git",
