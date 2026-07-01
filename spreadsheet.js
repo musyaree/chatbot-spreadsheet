@@ -1,5 +1,9 @@
 const { google } = require("googleapis");
-let { useSpreadsheet, keyFileName, sheetId } = require("./config/config.json");
+require("dotenv").config();
+
+const useSpreadsheet = process.env.USE_SPREADSHEET === "true";
+const keyFileName = process.env.KEY_FILE_NAME;
+const sheetId = process.env.SHEET_ID;
 
 function spreadsheet(keyFile, spreadsheetId) {
   this.spreadsheetId = spreadsheetId;
