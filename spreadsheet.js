@@ -59,7 +59,9 @@ function spreadsheet(keyFile, spreadsheetId) {
       auth,
       spreadsheetId: this.spreadsheetId,
       range,
-      valueInputOption: "USER_ENTERED",
+      // RAW: nilai disimpan apa adanya, tidak dievaluasi sebagai formula
+      // (mencegah formula/CSV injection dari isi pesan WhatsApp).
+      valueInputOption: "RAW",
       resource: {
         values: [data],
       },
