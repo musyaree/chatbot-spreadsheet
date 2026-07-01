@@ -1,88 +1,74 @@
-# chatbot whit spreadsheet
+# Jurnal Bot
 
-Script bot wa input data ke google spreadsheet
+A WhatsApp bot that logs journal (OJS) payment confirmations straight into a Google Spreadsheet. Whenever a confirmation message arrives at the bot's number, the data is recorded automatically into that month's sheet, so there is no manual data entry. The bot only records messages and does not reply to the sender.
 
-**Cara menggunakan**
+The WhatsApp side uses [Baileys](https://github.com/WhiskeySockets/Baileys), and the data is stored through the Google Sheets API.
 
+## Message format
+
+```
+*Konfirmasi Pembayaran*
+-Nomor OJS: 12345
+-FT/Reg: fast track
+-Nama Pembayar: Joko Widodo
+```
+
+From a message like this, the bot extracts the OJS number, the FT/Reg field, and the payer's name, then writes them to the tab for the current month (for example `Juli 2026`). If that month's tab does not exist yet, it is created automatically. The format is fairly forgiving about spacing and letter case, so it does not have to match exactly.
+
+Two fields are required: the OJS number must contain digits, and the payer's name cannot be empty. Messages that are incomplete or not in the confirmation format are ignored. The FT/Reg value is also normalized automatically to either `Fast Track` or `Reguler`.
+
+In the spreadsheet, the columns filled automatically are only Nomor OJS, Nama Author, Progress (set to `Submit`), and Keterangan (which holds the FT/Reg value). The remaining columns such as Judul and Reviewer are left blank on purpose, to be filled in manually.
+
+## Setting up Google Sheets
+
+This is the most tedious part, but you only need to do it once. The goal is to create a service account so the bot has permission to write to the spreadsheet.
+
+1. Prepare the spreadsheet and note its ID from the URL, the `.../spreadsheets/d/<ID>/edit` part.
+2. Go to the [Google Cloud Console](https://console.cloud.google.com) and create a new project.
+3. Open APIs & Services, Enable APIs & Services, search for the Google Sheets API, then click Enable.
+4. Go to Credentials, Create Credentials, choose Service account, and fill in the name until it is done.
+5. Open that service account, go to the Keys tab, Add key, Create new key, then choose JSON. The file downloads right away.
+6. Place that JSON file in the project root and name it `credentials.json`.
+
+The step people forget most often: the spreadsheet has to be shared with the service account email (see `client_email` inside `credentials.json`) with the Editor role. If you skip it, you will get a 403 error even though the credentials are correct.
+
+## Configuration
+
+Copy `.env.example` to `.env`, then fill in the values.
 
 ```bash
-git clone https://github.com/fathb/chatbot-spreadsheet
-cd chatbot-spreadsheet
+cp .env.example .env
+```
+
+```
+USE_SPREADSHEET=true
+KEY_FILE_NAME=credentials.json
+SHEET_ID=<YOUR_SPREADSHEET_ID>
+```
+
+`.env` and `credentials.json` are deliberately kept out of Git because they hold secrets.
+
+## Running
+
+Requires Node.js 20 or 22.
+
+```bash
 npm install
+npm run bot
 ```
 
-Di sini saya asumsikan kalian sudah memiliki akun google atau google yang aktif
+A QR code appears in the terminal. Scan it with the bot's number through WhatsApp, under Linked Devices, then Link a Device. Once you see the message "Bot tersambung ke WhatsApp", the bot is ready. The login session is stored in the `sessions/` folder, so you will not need to scan again on the next run.
 
-
-
-1. Buat spreadsheet yang ingin disambungkan dengan bot;
-2. Simpan id dari spreadsheet tsb;
-3. Login di cloud.google.com kemudian masuk ke console;
-4. Pilih project dan buat project baru kasih nama dan tekan create;
-5. Kemudian pilih project yang dibuat;
-6. Ke dashboard project kemudian ke apis & services;
-7. Klick **+enable apis & services;**
-8. Ketik sheet pada pencarian dan pilih **Google Sheet API;**
-9. Klick **enable;**
-10. Pada sidebar klick **Credentials;**
-11. klick **CREATE CREDENTIALS ** di tengah atas dan pilih service account isi nama dan id nya sampai selesai;
-12. Copy email yang ada kemudian klick;
-13. Ke tab **key** dan **add key -> create new key -> json;**
-14. Proses 13 akan mendownload file json simpan baik-baik filenya;
-15. Kemudian buka file **spreadsheet** yang dibuat tadi kemudian **share;**
-16. Tambahkan **email** yang di **copy** dan buat role nya sebagai editor klick **share;**
-
-**Menjalankan script bot nya**
-
-
-
-1. Download scriptnya;
-2. Extract ke **HOME termux;**
-3. Pindahkan **file json** yang didownload ke dalam **folder bot;**
-4. Buka file config/config.json isi **id spreadsheet** dan **nama file keys credential;**
-5. Masuk ke folder bot dan jalankan perintah **npm install**;
-6. Untuk menjalankan botnya jalankan perintah **npm run bot;**
-7. Scan barcode yang muncul dengan **nomor/akun WA** yang ingin dijadikan **BOT;**
-8. Bot siap digunakan
-
-**Fitur - fitur**
-
-
-
-1. Pesan default untuk melihat command / key pesan dan fungsinya;
-2. Membuat template pesan autorespon (key dan balasan yang diinginkan);
-3. Input data ke spreadsheet;
-4. Bisa memilih sheet;
-5. Data yang ingin di input bebas (sesuai dengan kebutuhan)
-6. bikin autorespon di spreadsheet <span style="color:red">new</span>
-7. ambil data dari spreadsheet <span style="color:red">new</span>
-8. cek nomor di terminal apakah aktif di akun wa (video menyusul) <span style="color:red">new</span>
-9. kirim pesan dari terminal (video menyusul) <span style="color:red">new</span>
-
-**Cara input data**
-
-
-
-1. Buat key dan template folmulir;
-2. Untuk value data awali dengan titik dua (:)
-
-[**video tutorialnya**](https://youtu.be/b5GwwbGStHc)
-[![cara pakai](http://i3.ytimg.com/vi/b5GwwbGStHc/hqdefault.jpg)](https://youtu.be/b5GwwbGStHc)
-
-[membuat auto response di spreadsheet](https://youtu.be/vZsK3uJJaeA)
-[![with thumb](http://i3.ytimg.com/vi/vZsK3uJJaeA/hqdefault.jpg)](https://youtu.be/vZsK3uJJaeA)
-
-[ambil data dari spreadsheer](https://youtu.be/3CyTAIvr354)
-[![thumb](http://i3.ytimg.com/vi/3CyTAIvr354/hqdefault.jpg)](https://youtu.be/3CyTAIvr354)
-
-[bot terminal](https://youtu.be/DVcqQzKDrds)
-
-**untuk menjalankan bot termux / terminal**
+## Tests
 
 ```bash
-npm run "bot terminal"
+npm test
 ```
 
-- [Buat Ngopi](https://saweria.co/fathb)
+This runs the unit tests for the parser. The same tests also run automatically in GitHub Actions on every push or pull request to `main`.
 
-- [donate pake Dana](https://link.dana.id/qr/35gzimg9)
+## Notes
+
+Baileys is an unofficial library, and automating WhatsApp this way violates its Terms of Service, so there is a chance the number gets banned. For that reason, use a dedicated number rather than a personal one, especially if you plan to run it continuously.
+
+This project started as a fork of [fathb/chatbot-spreadsheet](https://github.com/fathb/chatbot-spreadsheet), but it has since been reworked considerably for logging journal payments.
